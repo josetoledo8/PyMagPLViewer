@@ -1,8 +1,10 @@
 import customtkinter as ctk
 import pandas as pd
 import os
-import seaborn as sns
 import numpy as np
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -29,6 +31,7 @@ class App(ctk.CTk):
         self.plot_frame = ctk.CTkFrame(self)
         self.plot_frame.grid(row = 0, column = 1, rowspan = 2)
         
+        # Configure widgets
         self.btn1 = ctk.CTkButton(self.main_frame, text='Import files', command=self.ImportFiles)
         self.btn1.grid(row=0, column=0, pady=5, padx=5)
         
@@ -38,10 +41,11 @@ class App(ctk.CTk):
         self.btn3 = ctk.CTkButton(self.main_frame, text='Export data', command=self.ExportData)
         self.btn3.grid(row=2, column=0, pady=5, padx=5)
         
-        # Placeholder para os arquivos
+        
+        # Import files placeholder
         self.files = []
         
-        # Títulos dos eixos
+        # Default axes titles
         self._xlabel = "Wavedata (arb. u.)"
         self._ylabel = "CCD Counts (arb. u.)"
 
@@ -81,9 +85,8 @@ class App(ctk.CTk):
             self.ImportFiles()
 
         # Cria a figura do Matplotlib
-        fig = Figure(figsize=(10, 5), dpi=100)
-        ax_line = fig.add_subplot(121)  # Subplot para o gráfico de linha
-        ax_color = fig.add_subplot(122)  # Subplot para o mapa de calor
+        fig = Figure(figsize=(6, 5), dpi=100)
+        ax_line = fig.add_subplot(111)  # Subplot para o gráfico de linha
 
         df_full = pd.DataFrame({})
 
@@ -100,28 +103,10 @@ class App(ctk.CTk):
             # Concatena dados no DataFrame completo
             df_full = pd.concat([df_full, df], axis = 1, ignore_index=True)
         
-        # Extrair os dados do DataFrame para o gráfico de calor
-        x_axis = df_full.iloc[:, 0].values  
-        y_axis = [i for i in range(len(df_full.columns[1:]))]
-        z_values = df_full.iloc[:, 1:].values.T 
-
-        X, Y = np.meshgrid(x_axis, y_axis)
-
-        # Mapa de calor
-        ax_color.pcolormesh(
-            X, 
-            Y, 
-            z_values,
-            cmap = 'viridis'            
-        )
-
-        # Ajustes de rótulos
         
         # Configurações do gráfico de linha
         ax_line.set_xlabel(self.XAxis_Title)
         ax_line.set_ylabel(self.YAxis_Title)
-
-        ax_color.grid(False)
 
         # Ajusta o layout e adiciona a figura ao Tkinter
         fig.tight_layout()
@@ -135,26 +120,7 @@ class App(ctk.CTk):
         canvas.get_tk_widget().grid(row=0, column=0, padx=5, pady=5)
 
     def ExportData(self):
-        if not self.files:
-            print("Nenhum arquivo para exportar.")
-            return
-
-        # Exemplo de exportação: concatenar todos os dados em um único CSV
-        all_data = []
-        for file in self.files:
-            filepath = os.path.realpath(file) 
-            df = pd.read_csv(filepath, sep=r'\s+', names=['x', 'y'])
-            all_data.append(df)
-
-        if all_data:
-            combined_df = pd.concat(all_data, ignore_index=True)
-            export_path = fd.asksaveasfilename(
-                defaultextension=".csv",
-                filetypes=[("CSV files", "*.csv")],
-            )
-            if export_path:
-                combined_df.to_csv(export_path, index=False)
-                print(f"Dados exportados para {export_path}.")
+        return None
 
 app = App()
 app.mainloop()
