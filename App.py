@@ -47,6 +47,8 @@ class App(ctk.CTk):
         # Default axes titles
         self._xlabel = "Wavedata (arb. u.)"
         self._ylabel = "CCD Counts (arb. u.)"
+        
+        self.x_min = self.x_max = self.y_min = self.y_max = None
 
     @property
     def XAxis_Title(self):
@@ -85,9 +87,10 @@ class App(ctk.CTk):
             self.ImportFiles()
 
         # Cria a figura do Matplotlib
-        self.fig = Figure(figsize=(6, 5), dpi=100)
-        self.ax_line = self.fig.add_subplot(111)  # Subplot para o gráfico de linha
-
+        self.fig = Figure(figsize=(10, 5), dpi=100)
+        self.ax_line = self.fig.add_subplot(121)
+        self.ax_color = self.fig.add_subplot(122)
+        
         self.df_full = pd.DataFrame({})
 
         for file in self.files:
@@ -102,15 +105,16 @@ class App(ctk.CTk):
 
             # Concatena dados no DataFrame completo
             self.df_full = pd.concat([self.df_full, df], axis = 1, ignore_index=True)
-        
+               
+        self.FalseColorPlot()
         
         # Configurações do gráfico de linha
         self.ax_line.set_xlabel(self.XAxis_Title)
         self.ax_line.set_ylabel(self.YAxis_Title)
-        
+                           
         # Ajusta o layout e adiciona a figura ao Tkinter
         self.fig.tight_layout()
-
+                
         # Limpa o antigo gráfico antes de desenhar o novo
         for widget in self.plot_frame.winfo_children():
             widget.destroy()
@@ -118,6 +122,10 @@ class App(ctk.CTk):
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, column=0, padx=5, pady=5)
+        
+        self.CropOptions()
+        
+    def CropOptions(self):
         
         # Cria um mini-frame para agrupar os botões de crop
         crop_box = ctk.CTkFrame(self.plot_frame)
@@ -132,41 +140,57 @@ class App(ctk.CTk):
         self.max_x_entry = ctk.CTkEntry(crop_box, placeholder_text="Max x")
         self.max_x_entry.grid(row=1,column = 1)
         
-        self.y_crop_label = ctk.CTkLabel(crop_box, text = 'y range',fg_color="transparent")
+        self.y_crop_label = ctk.CTkLabel(crop_box, text = 'CCD Counts range',fg_color="transparent")
         self.y_crop_label.grid(row=0, column = 2, columnspan = 2)
 
-        self.min_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Min y")
+        self.min_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Min counts")
         self.min_y_entry.grid(row=1,column = 2)
         
-        self.max_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Max y")
-        self.max_y_entry.grid(row=1,column = 3)
+        self.max_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Max counts")
+        self.max_y_entry.grid(row = 1,column = 3)
         
         crop_btn = ctk.CTkButton(master = crop_box, text="Crop graph", command=self.Crop)
-        crop_btn.grid(row=2, columnspan = 4)
+        crop_btn.grid(row=2, columnspan = 4, pady = 5)
     
     def Crop(self):
-        
         def validate_entry(inp):
             try:
-                float(inp)
-            except:
+                return float(inp)
+            except ValueError:
                 return None
-            return float(inp)
         
-        restart_x = self.df_full.iloc[:,0].values
-        restart_y = self.df_full.iloc[:,1:]
-        
-        self.x_min = validate_entry(self.min_x_entry.get()) or min(restart_x)
-        self.x_max = validate_entry(self.max_x_entry.get()) or max(restart_x)
-        self.y_min = validate_entry(self.min_y_entry.get()) or min(restart_y.min())
-        self.y_max = validate_entry(self.max_y_entry.get()) or max(restart_y.max())
+        # Valida as entradas para os limites
+        self.x_min = validate_entry(self.min_x_entry.get()) or min(self.df_full.iloc[:, 0])
+        self.x_max = validate_entry(self.max_x_entry.get()) or max(self.df_full.iloc[:, 0])
+        self.y_min = validate_entry(self.min_y_entry.get()) or self.df_full.iloc[:, 1:].values.min()
+        self.y_max = validate_entry(self.max_y_entry.get()) or self.df_full.iloc[:, 1:].values.max()
 
-        # Atualiza os limites dos eixos
+        # Atualiza os limites do gráfico de linha
         self.ax_line.set_xlim(self.x_min, self.x_max)
         self.ax_line.set_ylim(self.y_min, self.y_max)
-
+        
+        self.FalseColorPlot()
+        
         # Redesenha o gráfico
         self.canvas.draw()
+
+    def FalseColorPlot(self):
+        # False color plot com pixels esticados
+        x = self.df_full.iloc[:, 0].values  # Energy
+        y = self.df_full.columns[1:].astype(float)  # Magnetic field
+        z = self.df_full.iloc[:, 1:].values.T  # PL intensity (transposto)
+
+        X, Y = np.meshgrid(x, y)
+        self.ax_color.pcolormesh(
+            X,
+            Y,
+            z,
+            cmap = 'viridis',
+            vmin = self.y_min or np.min(z),
+            vmax = self.y_max or np.max(z)
+        )
+        
+        self.ax_color.set_xlim(self.x_min, self.x_max)
 
     def ExportData(self):
         return None
