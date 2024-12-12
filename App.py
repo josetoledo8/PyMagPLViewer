@@ -41,7 +41,6 @@ class App(ctk.CTk):
         self.btn3 = ctk.CTkButton(self.main_frame, text='Export data', command=self.ExportData)
         self.btn3.grid(row=2, column=0, pady=5, padx=5)
         
-        
         # Import files placeholder
         self.files = []
         
@@ -81,14 +80,15 @@ class App(ctk.CTk):
         )
 
     def PlotData(self):
+               
         if not self.files:
             self.ImportFiles()
 
         # Cria a figura do Matplotlib
-        fig = Figure(figsize=(6, 5), dpi=100)
-        ax_line = fig.add_subplot(111)  # Subplot para o gráfico de linha
+        self.fig = Figure(figsize=(6, 5), dpi=100)
+        self.ax_line = self.fig.add_subplot(111)  # Subplot para o gráfico de linha
 
-        df_full = pd.DataFrame({})
+        self.df_full = pd.DataFrame({})
 
         for file in self.files:
             filepath = os.path.realpath(file)
@@ -98,26 +98,75 @@ class App(ctk.CTk):
             df = df.apply(pd.to_numeric, errors='coerce').dropna()
 
             # Adiciona dados ao gráfico de linha
-            ax_line.plot(df['x'], df['y'])
+            self.ax_line.plot(df['x'], df['y'])
 
             # Concatena dados no DataFrame completo
-            df_full = pd.concat([df_full, df], axis = 1, ignore_index=True)
+            self.df_full = pd.concat([self.df_full, df], axis = 1, ignore_index=True)
         
         
         # Configurações do gráfico de linha
-        ax_line.set_xlabel(self.XAxis_Title)
-        ax_line.set_ylabel(self.YAxis_Title)
-
+        self.ax_line.set_xlabel(self.XAxis_Title)
+        self.ax_line.set_ylabel(self.YAxis_Title)
+        
         # Ajusta o layout e adiciona a figura ao Tkinter
-        fig.tight_layout()
+        self.fig.tight_layout()
 
         # Limpa o antigo gráfico antes de desenhar o novo
         for widget in self.plot_frame.winfo_children():
             widget.destroy()
 
-        canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=0, column=0, padx=5, pady=5)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().grid(row=0, column=0, padx=5, pady=5)
+        
+        # Cria um mini-frame para agrupar os botões de crop
+        crop_box = ctk.CTkFrame(self.plot_frame)
+        crop_box.grid(row=1)
+        
+        x_crop_label = ctk.CTkLabel(crop_box, text = 'x range',fg_color="transparent")
+        x_crop_label.grid(row=0, column = 0, columnspan = 2)
+
+        self.min_x_entry = ctk.CTkEntry(crop_box, placeholder_text="Min x")
+        self.min_x_entry.grid(row=1,column = 0)
+        
+        self.max_x_entry = ctk.CTkEntry(crop_box, placeholder_text="Max x")
+        self.max_x_entry.grid(row=1,column = 1)
+        
+        self.y_crop_label = ctk.CTkLabel(crop_box, text = 'y range',fg_color="transparent")
+        self.y_crop_label.grid(row=0, column = 2, columnspan = 2)
+
+        self.min_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Min y")
+        self.min_y_entry.grid(row=1,column = 2)
+        
+        self.max_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Max y")
+        self.max_y_entry.grid(row=1,column = 3)
+        
+        crop_btn = ctk.CTkButton(master = crop_box, text="Crop graph", command=self.Crop)
+        crop_btn.grid(row=2, columnspan = 4)
+    
+    def Crop(self):
+        
+        def validate_entry(inp):
+            try:
+                float(inp)
+            except:
+                return None
+            return float(inp)
+        
+        restart_x = self.df_full.iloc[:,0].values
+        restart_y = self.df_full.iloc[:,1:]
+        
+        self.x_min = validate_entry(self.min_x_entry.get()) or min(restart_x)
+        self.x_max = validate_entry(self.max_x_entry.get()) or max(restart_x)
+        self.y_min = validate_entry(self.min_y_entry.get()) or min(restart_y.min())
+        self.y_max = validate_entry(self.max_y_entry.get()) or max(restart_y.max())
+
+        # Atualiza os limites dos eixos
+        self.ax_line.set_xlim(self.x_min, self.x_max)
+        self.ax_line.set_ylim(self.y_min, self.y_max)
+
+        # Redesenha o gráfico
+        self.canvas.draw()
 
     def ExportData(self):
         return None
