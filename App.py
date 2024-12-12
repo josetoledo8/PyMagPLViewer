@@ -2,7 +2,6 @@ import customtkinter as ctk
 import pandas as pd
 import os
 import numpy as np
-import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -17,11 +16,14 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         
+        ctk.set_appearance_mode("light")
+        ctk.set_default_color_theme("dark-blue")
+        
         self.geometry("1280x768")
         self.title("Main App Progress")
         
         # Configure grid layout (4x4)
-        self.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure((0, 1, 2), weight=1)
         
         # Configure each frame for each widget group
@@ -29,17 +31,14 @@ class App(ctk.CTk):
         self.main_frame.grid(row=0, column=0)
 
         self.plot_frame = ctk.CTkFrame(self)
-        self.plot_frame.grid(row = 0, column = 1, rowspan = 2)
+        self.plot_frame.grid(row = 0, column = 1)
         
         # Configure widgets
-        self.btn1 = ctk.CTkButton(self.main_frame, text='Import files', command=self.ImportFiles)
-        self.btn1.grid(row=0, column=0, pady=5, padx=5)
-        
-        self.btn2 = ctk.CTkButton(self.main_frame, text='View data', command=self.PlotData)
-        self.btn2.grid(row=1, column=0, pady=5, padx=5)
+        self.btn2 = ctk.CTkButton(self.main_frame, text='Load data', command=self.PlotData)
+        self.btn2.grid(row=0, column=0, pady=5, padx=5)
         
         self.btn3 = ctk.CTkButton(self.main_frame, text='Export data', command=self.ExportData)
-        self.btn3.grid(row=2, column=0, pady=5, padx=5)
+        self.btn3.grid(row=1, column=0, pady=5, padx=5)
         
         # Import files placeholder
         self.files = []
@@ -80,6 +79,8 @@ class App(ctk.CTk):
             title='Open a file',
             filetypes=filetypes
         )
+        
+        self.GetSpectraTags()
 
     def PlotData(self):
                
@@ -128,10 +129,11 @@ class App(ctk.CTk):
     def CropOptions(self):
         
         # Cria um mini-frame para agrupar os botões de crop
-        crop_box = ctk.CTkFrame(self.plot_frame)
-        crop_box.grid(row=1)
+        crop_box = ctk.CTkFrame(self.plot_frame, fg_color="transparent")
+        crop_box.grid(row=1, pady=5)
         
-        x_crop_label = ctk.CTkLabel(crop_box, text = 'x range',fg_color="transparent")
+        # Configura entries para cortar o eixo-x
+        x_crop_label = ctk.CTkLabel(crop_box, text = 'X Range',fg_color="transparent")
         x_crop_label.grid(row=0, column = 0, columnspan = 2)
 
         self.min_x_entry = ctk.CTkEntry(crop_box, placeholder_text="Min x")
@@ -140,7 +142,8 @@ class App(ctk.CTk):
         self.max_x_entry = ctk.CTkEntry(crop_box, placeholder_text="Max x")
         self.max_x_entry.grid(row=1,column = 1)
         
-        self.y_crop_label = ctk.CTkLabel(crop_box, text = 'CCD Counts range',fg_color="transparent")
+        # Configura entries para cortar o eixo-y
+        self.y_crop_label = ctk.CTkLabel(crop_box, text = 'CCD Counts Range',fg_color="transparent")
         self.y_crop_label.grid(row=0, column = 2, columnspan = 2)
 
         self.min_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Min counts")
@@ -149,9 +152,44 @@ class App(ctk.CTk):
         self.max_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Max counts")
         self.max_y_entry.grid(row = 1,column = 3)
         
+        # Define o Crop Button
         crop_btn = ctk.CTkButton(master = crop_box, text="Crop graph", command=self.Crop)
         crop_btn.grid(row=2, columnspan = 4, pady = 5)
-    
+        
+    def GetSpectraTags(self):
+        self.tag_frame = ctk.CTkFrame(self.main_frame)
+        self.tag_frame.grid(row=4,column=0)
+        
+        self.tag_frame_label = ctk.CTkLabel(self.tag_frame, text = 'Variable parameter (Field, Angle, Time, etc)', fg_color = "transparent")
+        self.tag_frame_label.grid(row=0, pady = 5, padx = 5, columnspan = 3)
+        
+        self.tag_frame_label1 = ctk.CTkLabel(self.tag_frame, text = 'Initial value', fg_color = "transparent")
+        self.tag_frame_label1.grid(row=1, column = 0, pady = 5, padx = 5)
+        
+        self.tag_frame_label2 = ctk.CTkLabel(self.tag_frame, text = 'Final value', fg_color = "transparent")
+        self.tag_frame_label2.grid(row=1, column = 1, pady = 5, padx = 5)
+        
+        self.tag_frame_label3 = ctk.CTkLabel(self.tag_frame, text = 'Step value', fg_color = "transparent")
+        self.tag_frame_label3.grid(row=1, column = 2, pady = 5, padx = 5)
+        
+        # Place entries using a loop
+        self.init_entries = []
+        self.final_entries = []
+        self.step_entries = []
+
+        for i in range(1, 6):
+            init_entry = ctk.CTkEntry(self.tag_frame)
+            init_entry.grid(row=i + 1, column=0, padx=5, pady=5)
+            self.init_entries.append(init_entry)
+
+            final_entry = ctk.CTkEntry(self.tag_frame)
+            final_entry.grid(row=i + 1, column=1, padx=5, pady=5)
+            self.final_entries.append(final_entry)
+
+            step_entry = ctk.CTkEntry(self.tag_frame)
+            step_entry.grid(row=i + 1, column=2, padx=5, pady=5)
+            self.step_entries.append(step_entry)
+            
     def Crop(self):
         def validate_entry(inp):
             try:
