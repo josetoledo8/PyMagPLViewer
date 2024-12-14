@@ -189,7 +189,17 @@ class App(ctk.CTk):
             step_entry = ctk.CTkEntry(self.tag_frame)
             step_entry.grid(row=i + 1, column=2, padx=5, pady=5)
             self.step_entries.append(step_entry)
+        
+        #Set confirm button
+        tag_btn = ctk.CTkButton(master = self.tag_frame, text="Apply values", command=self.ApplyTags)
+        tag_btn.grid(row = i+2, columnspan=3)
+
+    def ApplyTags(self):
+        tags = []
+        for i, f, s in zip(self.init_entries, self.final_entries, self.step_entries):
             
+            print(np.arange(float(i.get()), float(f.get()), float(s.get())))
+
     def Crop(self):
         def validate_entry(inp):
             try:
