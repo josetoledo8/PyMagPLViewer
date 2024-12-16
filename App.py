@@ -191,7 +191,7 @@ class App(ctk.CTk):
             self.step_entries.append(step_entry)
         
         #Set confirm button
-        tag_btn = ctk.CTkButton(master = self.tag_frame, text="Apply values", command=self.ApplyTags)
+        tag_btn = ctk.CTkButton(master = self.tag_frame, text="Apply tags", command=self.ApplyTags)
         tag_btn.grid(row = i+2, columnspan=3)
 
     def ApplyTags(self):
@@ -243,5 +243,15 @@ class App(ctk.CTk):
     def ExportData(self):
         return None
 
-app = App()
-app.mainloop()
+import hupper
+
+def start_reloader():
+    hupper.start_reloader('App.main')
+
+def main():
+    app = App()
+    app.mainloop()
+
+if __name__ == "__main__":
+    start_reloader()
+    main()
