@@ -41,7 +41,7 @@ class App(ctk.CTk):
 
         self.btn3 = ctk.CTkButton(
             self.main_frame, text='Export data', command=self.ExportData)
-        self.btn3.grid(row=3, column=0, pady=5, padx=5)
+        self.btn3.grid(row=0, column=1, pady=5, padx=5)
 
         # Import files placeholder
         self.files = []
@@ -154,7 +154,7 @@ class App(ctk.CTk):
 
     def GetSpectraTags(self):
         self.tag_frame = ctk.CTkFrame(self.main_frame)
-        self.tag_frame.grid(row=4, column=0)
+        self.tag_frame.grid(row=4, column=0, columnspan = 2)
 
         self.tag_frame_label = ctk.CTkLabel(
             self.tag_frame, text='Variable parameter (Field, Angle, Time, etc)', fg_color="transparent")
