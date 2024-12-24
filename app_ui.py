@@ -1,24 +1,25 @@
 import customtkinter as ctk
-import seaborn as sns
 import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+import mplcyberpunk
+
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
 from app_data_import import DataImporter
 from app_data_visualizer import DataVisualizer
 from app_data_processing import DataProcessor
 
-sns.set_theme()
+plt.style.use("cyberpunk")
 
 class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
     
     def __init__(self):
         super().__init__()
 
-        ctk.set_appearance_mode("light")
-        ctk.set_default_color_theme("dark-blue")
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
 
-        self.geometry("1800x720")
+        self.geometry()
         self.title("Main App Progress")
 
         self.FrameMain()
@@ -29,11 +30,11 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
     def FrameMain(self):
         
         # Configure grid layout (4x4)
-        self.grid_columnconfigure((0, 1, 2), weight=1)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_rowconfigure((0, 1), weight=1)
 
         self.main_frame = ctk.CTkFrame(self)
-        self.main_frame.grid(row=0, column=0)
+        self.main_frame.grid(row=0, column=0, padx = 2, pady = 2, stick = 'ns')
 
         # Configure widgets
         self.btn2 = ctk.CTkButton(
@@ -47,10 +48,10 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
     def FrameGraphs(self):
         
         self.plot_frame = ctk.CTkFrame(self)
-        self.plot_frame.grid(row=0, column=1)
+        self.plot_frame.grid(row=0, column=1, padx = 2, pady = 2, stick = 'ns')
         
         # Cria a figura do Matplotlib
-        self.fig = Figure(figsize=(10, 5), dpi=100)
+        self.fig = Figure(figsize=(10, 6), dpi=100)
         
         # Configurar o GridSpec
         gs = gridspec.GridSpec(2, 2, height_ratios=[1, 0.75])  # 2 linhas e 2 colunas, com ajuste de proporções
@@ -70,7 +71,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.ax_integrated.set_ylabel('Integrated counts (arb. u.)')
         
         # Ajusta o layout e adiciona a figura ao Tkinter
-        self.fig.tight_layout()
+        self.fig.tight_layout(pad = 1.1)
         
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
         self.canvas.draw()
@@ -113,7 +114,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
 
     def FrameTags(self):
         self.tag_frame = ctk.CTkFrame(self.main_frame)
-        self.tag_frame.grid(row=4, column=0, columnspan=2)
+        self.tag_frame.grid(row=4, column=0, columnspan = 2, sticky='NSWE')
 
         self.tag_frame_label = ctk.CTkLabel(
             self.tag_frame, text='Custom variable (Field, Angle, Time, etc)', fg_color="transparent")

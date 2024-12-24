@@ -1,4 +1,5 @@
 import numpy as np
+import mplcyberpunk
 
 class DataVisualizer:
     
@@ -34,7 +35,7 @@ class DataVisualizer:
             X,
             Y,
             z,
-            cmap='rainbow',
+            cmap='coolwarm',
             vmin=self.y_min or np.min(z),
             vmax=self.y_max or np.max(z)
         )
@@ -64,6 +65,8 @@ class DataVisualizer:
             integrals.append(integral)
 
         vertical_axis = self.tags or filtered_df.columns[1:]
+                
+        self.ax_integrated.plot(vertical_axis, integrals, linestyle='dashed', marker = 'o')
         
-        self.ax_integrated.scatter(vertical_axis, integrals)
-        self.ax_integrated.plot(vertical_axis, integrals, linestyle='dashed')
+        mplcyberpunk.make_lines_glow(self.ax_integrated)
+        mplcyberpunk.add_gradient_fill(self.ax_integrated, alpha_gradientglow=0.5)
