@@ -5,12 +5,27 @@ from tkinter import filedialog as fd
 class DataImporter:
 
     def ImportFiles(self):
-        
+               
         self.tags = None
         self.x_min = None
         self.x_max = None
         self.y_min = None
         self.y_max = None
+        
+        # Limpa os gráficos, caso um re-import seja feito
+        self.ax_line.clear()
+        self.ax_color.clear()
+        self.ax_integrated.clear()
+        
+        # Nome dos eixos
+        self.ax_line.set_xlabel('Wavedata (arb. u.)')
+        self.ax_line.set_ylabel('CCD Counts (arb. u.)')
+        
+        self.ax_color.set_xlabel('Wavedata (arb. u.)')
+        self.ax_color.set_ylabel('Custom variable (arb. u.)')
+        
+        self.ax_integrated.set_xlabel('Custom variable (arb. u.)')
+        self.ax_integrated.set_ylabel('Integrated counts (arb. u.)')
         
         filetypes = (
             ('text files', '*.txt'),

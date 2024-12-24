@@ -4,9 +4,9 @@ import matplotlib.gridspec as gridspec
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from data_import import DataImporter
-from data_visualizer import DataVisualizer
-from data_processing import DataProcessor
+from app_data_import import DataImporter
+from app_data_visualizer import DataVisualizer
+from app_data_processing import DataProcessor
 
 sns.set_theme()
 
@@ -58,7 +58,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.ax_line = self.fig.add_subplot(gs[0,0])
         self.ax_color = self.fig.add_subplot(gs[0,1])
         self.ax_integrated = self.fig.add_subplot(gs[1,:])
-        
+               
         # Nome dos eixos
         self.ax_line.set_xlabel('Wavedata (arb. u.)')
         self.ax_line.set_ylabel('CCD Counts (arb. u.)')
@@ -153,5 +153,3 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         tag_btn = ctk.CTkButton(master=self.tag_frame,
                                 text="Apply tags", command=self.ApplyTags)
         tag_btn.grid(row=i+2, columnspan=3)
-    
-
