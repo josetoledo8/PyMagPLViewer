@@ -54,4 +54,10 @@ class DataImporter:
         self.df_full = self.df_full.T.drop_duplicates().T
         
     def ExportData(self):
-        pass
+        if self.tags:
+            self.df_full.columns = ['wave'] + self.tags
+            
+        self.df_full.to_csv('exported_data.csv', index=False)
+        
+        if self.export_image.get() == '1':
+            self.fig.savefig('exported_image.png', dpi = 150)

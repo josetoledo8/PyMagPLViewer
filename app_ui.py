@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
-import mplcyberpunk
+import seaborn as sns
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -9,7 +9,7 @@ from app_data_import import DataImporter
 from app_data_visualizer import DataVisualizer
 from app_data_processing import DataProcessor
 
-plt.style.use("cyberpunk")
+sns.set_theme(style="darkgrid")
 
 class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
     
@@ -44,6 +44,12 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.btn3 = ctk.CTkButton(
             self.main_frame, text='Export data', command=self.ExportData)
         self.btn3.grid(row=0, column=1, pady=5, padx=5)
+        
+        
+        self.export_image = ctk.StringVar(value=False)
+        export_image_checkbox = ctk.CTkCheckBox(self.main_frame, text="Export image",
+                                     variable=self.export_image, onvalue=True, offvalue=False)
+        export_image_checkbox.grid(row=1, column=1, pady=1, padx=1)
         
     def FrameGraphs(self):
         
