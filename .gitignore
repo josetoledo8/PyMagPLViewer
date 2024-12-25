@@ -7,13 +7,13 @@ __pycache__/
 *.so
 
 # Text files
-.txt
-.csv
+*.txt
+*.csv
 
 # Image files
-.png
-.jpg
-.jpeg
+*.png
+*.jpg
+*.jpeg
 
 # Distribution / packaging
 .Python
