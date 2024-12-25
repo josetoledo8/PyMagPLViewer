@@ -74,7 +74,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.ax_color.set_ylabel('Custom variable (arb. u.)')
         
         self.ax_integrated.set_xlabel('Custom variable (arb. u.)')
-        self.ax_integrated.set_ylabel('Integrated counts (arb. u.)')
+        self.ax_integrated.set_ylabel('Integrated counts (normalized)')
         
         # Ajusta o layout e adiciona a figura ao Tkinter
         self.fig.tight_layout(pad = 1.1)

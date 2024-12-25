@@ -25,7 +25,7 @@ class DataImporter:
         self.ax_color.set_ylabel('Custom variable (arb. u.)')
         
         self.ax_integrated.set_xlabel('Custom variable (arb. u.)')
-        self.ax_integrated.set_ylabel('Integrated counts (arb. u.)')
+        self.ax_integrated.set_ylabel('Integrated counts (normalized)')
         
         filetypes = (
             ('text files', '*.txt'),

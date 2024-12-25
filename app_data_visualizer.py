@@ -66,7 +66,7 @@ class DataVisualizer:
 
         vertical_axis = self.tags or filtered_df.columns[1:]
                 
-        self.ax_integrated.plot(vertical_axis, integrals, linestyle='dashed', marker = 'o')
+        self.ax_integrated.plot(vertical_axis, integrals/max(integrals), linestyle='dashed', marker = 'o')
         
         mplcyberpunk.make_lines_glow(self.ax_integrated)
         mplcyberpunk.add_gradient_fill(self.ax_integrated, alpha_gradientglow=0.5)
