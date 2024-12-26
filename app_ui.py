@@ -11,8 +11,9 @@ from app_data_processing import DataProcessor
 
 sns.set_theme(style="darkgrid")
 
+
 class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
-    
+
     def __init__(self):
         super().__init__()
 
@@ -20,7 +21,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         ctk.set_default_color_theme("blue")
 
         self.geometry()
-        self.title("Main App Progress")
+        self.title("Photoluminescence Data Visualizer")
 
         self.FrameMain()
         self.FrameGraphs()
@@ -28,61 +29,103 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.FrameTags()
 
     def FrameMain(self):
-        
+
         # Configure grid layout (4x4)
         self.grid_columnconfigure((0, 1), weight=1)
         self.grid_rowconfigure((0, 1), weight=1)
 
         self.main_frame = ctk.CTkFrame(self)
-        self.main_frame.grid(row=0, column=0, padx = 2, pady = 2, stick = 'ns')
+        self.main_frame.grid(
+            row=0, column=0, padx=2, pady=2, stick='ns')
 
-        # Configure widgets
-        self.btn2 = ctk.CTkButton(
-            self.main_frame, text='Load data', command=self.PlotData)
-        self.btn2.grid(row=0, column=0, pady=5, padx=5)
+        self.MiniFrameImportOptions()
 
-        self.btn3 = ctk.CTkButton(
-            self.main_frame, text='Export data', command=self.ExportData)
-        self.btn3.grid(row=0, column=1, pady=5, padx=5)
-        
-        
-        self.export_image = ctk.StringVar(value=False)
-        export_image_checkbox = ctk.CTkCheckBox(self.main_frame, text="Export image",
-                                     variable=self.export_image, onvalue=True, offvalue=False)
-        export_image_checkbox.grid(row=1, column=1, pady=1, padx=1)
-        
+        self.MiniFrameExportOptions()
+
+    def MiniFrameImportOptions(self):
+
+        # Set the frame for import options
+        import_frame = ctk.CTkFrame(self.main_frame)
+        import_frame.grid(
+            row=0, column=0, pady=5, padx=5)
+
+        # Import button
+        ctk.CTkButton(
+            import_frame, text='Import data', command=self.PlotData).grid(
+                row=0, columnspan=2, pady=5, padx=5, sticky='WE')
+
+        # Set import wave unit elements
+        ctk.CTkLabel(
+            import_frame, text='Wave unit', fg_color="transparent").grid(
+                row=1, column=0, pady=5, padx=5)
+
+        ctk.CTkComboBox(
+            import_frame, values=['nm', 'ev', 'cm-1']).grid(
+            row=2, column=0, pady=5, padx=5)
+
+        # Set column separator elements
+        ctk.CTkLabel(import_frame, text='Column separator', fg_color="transparent").grid(
+            row=1, column=1, pady=5, padx=5)
+
+        ctk.CTkComboBox(import_frame, values=['Tab/space', ',', ';']).grid(
+            row=2, column=1, pady=5, padx=5)
+
+    def MiniFrameExportOptions(self):
+
+        export_frame = ctk.CTkFrame(self.main_frame)
+        export_frame.grid(row=0, column=1, pady=5, padx=5)
+
+        # Export button
+        ctk.CTkButton(export_frame, text='Export data', command=self.ExportData).grid(
+            row=0, column=0, columnspan=2, pady=5, padx=5, sticky='WE')
+
+        # Set import image elements
+        ctk.CTkLabel(export_frame, text='Export image', fg_color="transparent").grid(
+            row=1, column=0, pady=5, padx=5)
+
+        ctk.CTkComboBox(export_frame, values=['No', 'Yes']).grid(
+            row=2, column=0, pady=5, padx=5)
+
+        # Set import wave unit elements
+        ctk.CTkLabel(export_frame, text='Wave unit', fg_color="transparent").grid(
+            row=1, column=1, pady=5, padx=5)
+
+        ctk.CTkComboBox(export_frame, values=['nm', 'ev', 'cm-1']
+                        ).grid(row=2, column=1, pady=5, padx=5)
+
     def FrameGraphs(self):
-        
+
         self.plot_frame = ctk.CTkFrame(self)
-        self.plot_frame.grid(row=0, column=1, padx = 2, pady = 2, stick = 'ns')
-        
+        self.plot_frame.grid(row=0, column=1, padx=2, pady=2, stick='ns')
+
         # Cria a figura do Matplotlib
         self.fig = Figure(figsize=(10, 6), dpi=100)
-        
+
         # Configurar o GridSpec
-        gs = gridspec.GridSpec(2, 2, height_ratios=[1, 0.75])  # 2 linhas e 2 colunas, com ajuste de proporções
-        
-        self.ax_line = self.fig.add_subplot(gs[0,0])
-        self.ax_color = self.fig.add_subplot(gs[0,1])
-        self.ax_integrated = self.fig.add_subplot(gs[1,:])
-               
+        # 2 linhas e 2 colunas, com ajuste de proporções
+        gs = gridspec.GridSpec(2, 2, height_ratios=[1, 0.75])
+
+        self.ax_line = self.fig.add_subplot(gs[0, 0])
+        self.ax_color = self.fig.add_subplot(gs[0, 1])
+        self.ax_integrated = self.fig.add_subplot(gs[1, :])
+
         # Nome dos eixos
         self.ax_line.set_xlabel('Wavedata (arb. u.)')
         self.ax_line.set_ylabel('CCD Counts (arb. u.)')
-        
+
         self.ax_color.set_xlabel('Wavedata (arb. u.)')
         self.ax_color.set_ylabel('Custom variable (arb. u.)')
-        
+
         self.ax_integrated.set_xlabel('Custom variable (arb. u.)')
         self.ax_integrated.set_ylabel('Integrated counts (normalized)')
-        
+
         # Ajusta o layout e adiciona a figura ao Tkinter
-        self.fig.tight_layout(pad = 1.1)
-        
+        self.fig.tight_layout(pad=1.1)
+
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, column=0, padx=5, pady=5)
-        
+
     def FrameCrop(self):
 
         # Cria um mini-frame para agrupar os botões de crop
@@ -120,11 +163,12 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
 
     def FrameTags(self):
         self.tag_frame = ctk.CTkFrame(self.main_frame)
-        self.tag_frame.grid(row=4, column=0, columnspan = 2, sticky='NSWE')
+        self.tag_frame.grid(row=4, column=0, columnspan=4, sticky='NSWE')
 
         self.tag_frame_label = ctk.CTkLabel(
             self.tag_frame, text='Custom variable (Field, Angle, Time, etc)', fg_color="transparent")
-        self.tag_frame_label.grid(row=0, pady=5, padx=5, columnspan=3)
+        self.tag_frame_label.grid(
+            row=0, pady=5, padx=5, columnspan=3, sticky='WE')
 
         self.tag_frame_label1 = ctk.CTkLabel(
             self.tag_frame, text='Initial value', fg_color="transparent")
