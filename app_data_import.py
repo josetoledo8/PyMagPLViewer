@@ -39,25 +39,40 @@ class DataImporter:
         
         self.df_full = pd.DataFrame({})
 
-        for file in self.files:
+        # Loop para processar os arquivos
+        for i, file in enumerate(self.files):
             filepath = os.path.realpath(file)
 
             # Lê o arquivo e aplica conversão para números
-            df = pd.read_csv(filepath, sep=r'\s+', names=['x', 'y'])
+            sep = self.import_separator.get()
+            df = pd.read_csv(filepath, sep=r'\s+' if sep == 'Tab/Space' else sep)
             df = df.apply(pd.to_numeric, errors='coerce').dropna()
 
-            # Concatena dados no DataFrame completo
-            self.df_full = pd.concat(
-                [self.df_full, df], axis=1, ignore_index=True)
+            df.columns = ['x'] + [f'y{i}' for i in range(1, len(df.columns))]
+
+            if i == 0:
+                # Primeira iteração: inicializa self.df_full
+                self.df_full = df
+            else:
+                # Combina os DataFrames usando merge (full join)
+                self.df_full = pd.merge(
+                    left=self.df_full,
+                    right=df,
+                    on='x',
+                    how='outer'
+                )
+            # Renomeia as colunas apos o merge para evitar colunas com nomes duplicados
+            self.df_full.columns = ['x'] + [i for i in range(1, len(self.df_full.columns))]
 
         # Elimina as duplicatas da coluna 'x' geradas pelo processo de concatenação lateral
         self.df_full = self.df_full.T.drop_duplicates().T
         
     def ExportData(self):
+        
         if self.tags:
             self.df_full.columns = ['wave'] + self.tags
             
-        self.df_full.to_csv('exported_data.csv', index=False)
+        self.df_full.to_csv('exported_data.csv', sep = ' ', index=False)
         
-        if self.export_image.get() == '1':
+        if self.export_image.get() == 'Yes':
             self.fig.savefig('exported_image.png', dpi = 150)

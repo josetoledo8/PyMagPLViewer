@@ -55,19 +55,21 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
                 row=0, columnspan=2, pady=5, padx=5, sticky='WE')
 
         # Set import wave unit elements
+        self.import_wave_unit = ctk.StringVar(value="nm")
         ctk.CTkLabel(
             import_frame, text='Wave unit', fg_color="transparent").grid(
                 row=1, column=0, pady=5, padx=5)
 
         ctk.CTkComboBox(
-            import_frame, values=['nm', 'ev', 'cm-1']).grid(
+            import_frame, values=['nm', 'ev', 'cm-1'], variable=self.import_wave_unit).grid(
             row=2, column=0, pady=5, padx=5)
 
         # Set column separator elements
+        self.import_separator = ctk.StringVar(value="Tab/space")
         ctk.CTkLabel(import_frame, text='Column separator', fg_color="transparent").grid(
             row=1, column=1, pady=5, padx=5)
 
-        ctk.CTkComboBox(import_frame, values=['Tab/space', ',', ';']).grid(
+        ctk.CTkComboBox(import_frame, values=['Tab/space', ',', ';'],variable=self.import_separator).grid(
             row=2, column=1, pady=5, padx=5)
 
     def MiniFrameExportOptions(self):
@@ -79,19 +81,23 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         ctk.CTkButton(export_frame, text='Export data', command=self.ExportData).grid(
             row=0, column=0, columnspan=2, pady=5, padx=5, sticky='WE')
 
-        # Set import image elements
+        # Set export image elements
+        self.export_image = ctk.StringVar(value="No") # Recebe self para ser acessado em ExportData
+
         ctk.CTkLabel(export_frame, text='Export image', fg_color="transparent").grid(
             row=1, column=0, pady=5, padx=5)
 
-        ctk.CTkComboBox(export_frame, values=['No', 'Yes']).grid(
+        ctk.CTkComboBox(export_frame, values=['No', 'Yes'], variable=self.export_image).grid(
             row=2, column=0, pady=5, padx=5)
 
-        # Set import wave unit elements
+        # Set export wave unit elements
+        self.export_wave_unit = ctk.StringVar(value="nm")
         ctk.CTkLabel(export_frame, text='Wave unit', fg_color="transparent").grid(
             row=1, column=1, pady=5, padx=5)
 
-        ctk.CTkComboBox(export_frame, values=['nm', 'ev', 'cm-1']
-                        ).grid(row=2, column=1, pady=5, padx=5)
+        ctk.CTkComboBox(export_frame, values=[
+                        'nm', 'ev', 'cm-1'], variable=self.export_wave_unit).grid(
+                            row=2, column=1, pady=5, padx=5)
 
     def FrameGraphs(self):
 
