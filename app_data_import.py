@@ -28,7 +28,9 @@ class DataImporter:
         self.ax_integrated.set_ylabel('Integrated counts (normalized)')
         
         filetypes = (
-            ('text files', '*.txt'),
+            ('Text files', '*.txt'),
+            ('Comma-separated values', '*.csv'),
+            ('Dat files', '*.dat'),
             ('All files', '*.*')
         )
 
@@ -45,7 +47,13 @@ class DataImporter:
 
             # Lê o arquivo e aplica conversão para números
             sep = self.import_separator.get()
-            df = pd.read_csv(filepath, sep=r'\s+' if sep == 'Tab/Space' else sep)
+            
+            df = pd.read_csv(
+                filepath, 
+                sep=r'\s+' if sep == 'Tab/space' else sep, 
+                header=None, 
+                engine='python')
+            
             df = df.apply(pd.to_numeric, errors='coerce').dropna()
 
             df.columns = ['x'] + [f'y{i}' for i in range(1, len(df.columns))]
