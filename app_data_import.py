@@ -1,8 +1,15 @@
 import pandas as pd
 import os
 from tkinter import filedialog as fd
+from utils.SPE_Loader import read_spe
 
 class DataImporter:
+    
+    def SPEImport(self, file):
+        spe = read_spe(file)
+        df = spe.getSpectra()
+        df.columns = ['x'] + [f'y{i}' for i in range(1, len(df.columns))]
+        return df
 
     def ImportFiles(self):
                
@@ -31,6 +38,7 @@ class DataImporter:
             ('Text files', '*.txt'),
             ('Comma-separated values', '*.csv'),
             ('Dat files', '*.dat'),
+            ('SPE files', '*.spe'),
             ('All files', '*.*')
         )
 
@@ -44,15 +52,19 @@ class DataImporter:
         # Loop para processar os arquivos
         for i, file in enumerate(self.files):
             filepath = os.path.realpath(file)
-
+            extension = os.path.splitext(filepath)[1].lower()
+            
             # Lê o arquivo e aplica conversão para números
             sep = self.import_separator.get()
             
-            df = pd.read_csv(
-                filepath, 
-                sep=r'\s+' if sep == 'Tab/space' else sep, 
-                header=None, 
-                engine='python')
+            if extension.lower() == '.spe':
+                df = self.SPEImport(filepath)
+            else:
+                df = pd.read_csv(
+                    filepath, 
+                    sep=r'\s+' if sep == 'Tab/space' else sep, 
+                    header=None, 
+                    engine='python')
             
             df = df.apply(pd.to_numeric, errors='coerce').dropna()
 
