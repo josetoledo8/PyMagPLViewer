@@ -5,12 +5,11 @@ import seaborn as sns
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from app_data_import import DataImporter
-from app_data_visualizer import DataVisualizer
-from app_data_processing import DataProcessor
+from .data_import import DataImporter
+from .data_visualizer import DataVisualizer
+from .data_processing import DataProcessor
 
 sns.set_theme(style="darkgrid")
-
 
 class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
 

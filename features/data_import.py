@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 from tkinter import filedialog as fd
-from utils.SPE_Loader import read_spe
+from .utils.SPE_Loader import read_spe
 
 class DataImporter:
     
