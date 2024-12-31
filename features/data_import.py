@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from pandastable import Table
 from tkinter import filedialog as fd
 from .utils.SPE_Loader import read_spe
 
@@ -87,12 +88,17 @@ class DataImporter:
         # Elimina as duplicatas da coluna 'x' geradas pelo processo de concatenação lateral
         self.df_full = self.df_full.T.drop_duplicates().T
         
+        self.RenderDataFrame()
+        
+        
     def ExportData(self):
         
         if self.tags:
             self.df_full.columns = ['wave'] + self.tags
+        
+        export_df = self.df_full[(self.df_full['wave'] >= self.x_min) & (self.df_full['wave'] <= self.x_max)]
             
-        self.df_full.to_csv('exported_data.csv', sep = ' ', index=False)
+        export_df.to_csv('exported_data.csv', sep = ' ', index=False)
         
         if self.export_image.get() == 'Yes':
             self.fig.savefig('exported_image.png', dpi = 150)

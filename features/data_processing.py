@@ -48,6 +48,8 @@ class DataProcessor:
             self.tags = None
             
         self.UpdateCanvas()
+        
+        self.RenderDataFrame()
 
             
     def Crop(self):
