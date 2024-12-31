@@ -40,9 +40,11 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.main_frame = ctk.CTkFrame(self)
         self.main_frame.grid(
             row=0, column=0, padx=2, pady=2, stick='ns')
-        
-        self.MiniFrameImportOptions()
 
+        # Distribui uniformemente os miniframes de importacao e exportacao
+        self.main_frame.grid_columnconfigure((0,1), weight=1)
+
+        self.MiniFrameImportOptions()
         self.MiniFrameExportOptions()
 
     def MiniFrameImportOptions(self):
