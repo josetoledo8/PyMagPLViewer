@@ -39,7 +39,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
 
         self.main_frame = ctk.CTkFrame(self)
         self.main_frame.grid(
-            row=0, column=0, padx=2, pady=2, stick='ns')
+            row=0, column=0, padx=2, pady=2, sticky = 'n')
 
         # Distribui uniformemente os miniframes de importacao e exportacao
         self.main_frame.grid_columnconfigure((0,1), weight=1)
@@ -68,13 +68,13 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
             import_frame, text='Column separator', 
             fg_color="transparent"
         ).grid(
-            row=1, column=0, columnspan = 1, pady=5, padx=5, sticky = 'w')
+            row=1, column=0, columnspan = 1, pady=0, padx=5, sticky = 'w')
 
         ctk.CTkComboBox(
             import_frame, values=['Tab/space', ',', ';'], 
             variable=self.import_separator
         ).grid(
-            row=2, column=0, columnspan = 1, pady=5, padx=5, sticky = 'we')
+            row=2, column=0, columnspan = 1, pady=0, padx=5, sticky = 'we')
 
     def MiniFrameExportOptions(self):
 
@@ -95,13 +95,13 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
             export_frame, text='Export image', 
             fg_color="transparent"
         ).grid(
-            row=1, column = 0, columnspan=1, pady=5, padx=5, sticky = 'w')
+            row=1, column = 0, columnspan=1, pady=0, padx=5, sticky = 'w')
 
         ctk.CTkComboBox(
             export_frame, values=['No', 'Yes'], 
             variable=self.export_image
         ).grid(
-            row=2, column = 0, columnspan=1, pady=5, padx=5, sticky = 'we')
+            row=2, column = 0, columnspan=1, pady=0, padx=5, sticky = 'we')
 
     def FrameGraphs(self):
 
@@ -138,13 +138,24 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
 
     def FrameCrop(self):
 
-        # Cria um mini-frame para agrupar os botões de crop
-        crop_box = ctk.CTkFrame(self.plot_frame, fg_color="transparent")
-        crop_box.grid(row=1, pady=5)
+        # Cria um container principal com um fundo distinto
+        crop_container = ctk.CTkFrame(
+            self.plot_frame, 
+            corner_radius=10, 
+            fg_color="transparent", 
+            border_color="#565b5e", 
+            border_width=2  # Define a largura da borda
+        )
+        crop_container.grid(row=1, pady=10, padx=10, sticky='we')  # Define padding para destacar o bisel
+
+        # Cria um mini-frame para agrupar os botões de crop dentro do container
+        crop_box = ctk.CTkFrame(crop_container, fg_color="transparent")
+        crop_box.grid(row=0, padx=10, pady=10, sticky='we')
+
+        crop_box.grid_columnconfigure((0, 1, 2, 3, 4, 5,6), weight=1)
 
         # Configura entries para cortar o eixo-x
-        x_crop_label = ctk.CTkLabel(
-            crop_box, text='X Range', fg_color="transparent")
+        x_crop_label = ctk.CTkLabel(crop_box, text='X Range', fg_color="transparent")
         x_crop_label.grid(row=0, column=0, columnspan=2)
 
         self.min_x_entry = ctk.CTkEntry(crop_box, placeholder_text="Min x")
@@ -153,23 +164,31 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.max_x_entry = ctk.CTkEntry(crop_box, placeholder_text="Max x")
         self.max_x_entry.grid(row=1, column=1)
 
+        # Espaçador entre X e CCD
+        spacer = ctk.CTkLabel(crop_box, text='', fg_color="transparent")
+        spacer.grid(row=1, column=2, padx=10)
+
         # Configura entries para cortar o eixo-y
-        self.y_crop_label = ctk.CTkLabel(
-            crop_box, text='CCD Counts Range', fg_color="transparent")
-        self.y_crop_label.grid(row=0, column=2, columnspan=2)
+        self.y_crop_label = ctk.CTkLabel(crop_box, text='CCD Counts Range', fg_color="transparent")
+        self.y_crop_label.grid(row=0, column=3, columnspan=2)
 
-        self.min_y_entry = ctk.CTkEntry(
-            crop_box, placeholder_text="Min counts")
-        self.min_y_entry.grid(row=1, column=2)
+        self.min_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Min counts")
+        self.min_y_entry.grid(row=1, column=3)
 
-        self.max_y_entry = ctk.CTkEntry(
-            crop_box, placeholder_text="Max counts")
-        self.max_y_entry.grid(row=1, column=3)
+        self.max_y_entry = ctk.CTkEntry(crop_box, placeholder_text="Max counts")
+        self.max_y_entry.grid(row=1, column=4)
+
+        # Espaçador entre CCD e botao
+        spacer = ctk.CTkLabel(crop_box, text='', fg_color="transparent")
+        spacer.grid(row=1, column=5, padx=10)
 
         # Define o Crop Button
         crop_btn = ctk.CTkButton(
-            master=crop_box, text="Crop graph", command=self.Crop)
-        crop_btn.grid(row=2, columnspan=4, pady=5)
+            master=crop_box, text="Update axes",
+            corner_radius=5,
+            command=self.Crop)
+        crop_btn.grid(row=0, rowspan=2, column=6, padx=5, pady=5, sticky='nswe')
+
 
     def FrameTags(self):
         self.tag_frame = ctk.CTkFrame(self.main_frame)
@@ -213,7 +232,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         # Set confirm button
         tag_btn = ctk.CTkButton(master=self.tag_frame,
                                 text="Apply tags", command=self.ApplyTags)
-        tag_btn.grid(row=i+2, columnspan=3)
+        tag_btn.grid(row=i+2, columnspan=3, sticky = 'we',pady = 5)
         
         self.next_empty_row = i + 3
 
@@ -251,40 +270,76 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         except:
             pass
 
-        
     def RenderDataFrame(self):
-                
         preview_rows = 5
         preview_cols = 10
-        preview = self.df_full.iloc[0:preview_rows, 0:preview_cols]
-        
+
+        if self.x_max or self.x_min:
+            df = self.df_full[self.df_full.iloc[:, 0].between(self.x_min, self.x_max)]
+        else:
+            df = self.df_full
+
+        # Obter as primeiras e últimas linhas do DataFrame
+        first_preview = df.iloc[0:preview_rows, 0:preview_cols]
+        last_preview = df.iloc[-preview_rows:, 0:preview_cols]
+
+        # Configurar os cabeçalhos
         if self.tags:
-            preview.columns = ['Wavedata'] + list(self.tags)[0:preview_cols-1]
+            columns = ['Wavedata'] + list(self.tags)[0:preview_cols-1]
+        else:
+            columns = self.df_full.columns[:preview_cols]
         
+        first_preview.columns = columns
+        last_preview.columns = columns
+
+        # Limpar frame antes de renderizar nova tabela
         self.ClearFrame(self.table_frame)
-        
+
         # Renderizar cabeçalhos com cor de fundo diferente
-        for col_index, col_name in enumerate(preview.columns):
+        for col_index, col_name in enumerate(columns):
             label = ctk.CTkLabel(
                 self.table_frame, 
                 text=col_name, 
                 font=("Arial", 12, "bold"), 
                 fg_color="#46799c",  # Cor de fundo do cabeçalho
                 text_color="white",  # Cor do texto
-                corner_radius = 3
+                corner_radius=3
             )
-            label.grid(row=1, column=col_index, padx=0, pady=5, sticky="nsew")
-        
-        # Renderizar linhas do DataFrame com bordas em torno das células
-        for row_index, row in enumerate(preview.values):
+            label.grid(row=0, column=col_index, padx=0, pady=5, sticky="nsew")
+
+        # Renderizar as primeiras linhas
+        current_row = 1
+        for row_index, row in enumerate(first_preview.values):
             for col_index, cell_value in enumerate(row):
                 label = ctk.CTkLabel(
                     self.table_frame, 
                     text=str(cell_value), 
                     font=("Arial", 10)
                 )
-                label.grid(row=row_index + 2, column=col_index, padx=1, pady=1, sticky="nsew")
-        
+                label.grid(row=current_row, column=col_index, padx=1, pady=1, sticky="nsew")
+            current_row += 1
+
+        # Adicionar reticências centralizadas
+        for col_index in range(preview_cols):
+            label = ctk.CTkLabel(
+                self.table_frame, 
+                text="..." if col_index == preview_cols // 2 else "",
+                font=("Arial", 12, "italic")
+            )
+            label.grid(row=current_row, column=col_index, padx=1, pady=1, sticky="nsew")
+        current_row += 1
+
+        # Renderizar as últimas linhas
+        for row_index, row in enumerate(last_preview.values):
+            for col_index, cell_value in enumerate(row):
+                label = ctk.CTkLabel(
+                    self.table_frame, 
+                    text=str(cell_value), 
+                    font=("Arial", 10)
+                )
+                label.grid(row=current_row, column=col_index, padx=1, pady=1, sticky="nsew")
+            current_row += 1
+
         # Ajustar proporção das colunas para preencher espaço dinamicamente
-        for col_index in range(preview.shape[1]):
+        for col_index in range(preview_cols):
             self.table_frame.grid_columnconfigure(col_index, weight=1)

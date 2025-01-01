@@ -50,7 +50,6 @@ class DataProcessor:
         self.UpdateCanvas()
         
         self.RenderDataFrame()
-
             
     def Crop(self):
 
@@ -69,3 +68,5 @@ class DataProcessor:
         self.ax_line.set_ylim(self.y_min, self.y_max)
         
         self.UpdateCanvas()
+        
+        self.RenderDataFrame()

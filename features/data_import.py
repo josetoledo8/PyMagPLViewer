@@ -92,11 +92,13 @@ class DataImporter:
         
         
     def ExportData(self):
-        
+               
         if self.tags:
-            self.df_full.columns = ['wave'] + self.tags
+            self.df_full.columns = ['wavedata'] + self.tags
+        else:
+            self.df_full.columns = ['wavedata'] + [f'y{i}' for i in range(1, len(self.df_full.columns))]
         
-        export_df = self.df_full[(self.df_full['wave'] >= self.x_min) & (self.df_full['wave'] <= self.x_max)]
+        export_df = self.df_full[(self.df_full['wavedata'] >= self.x_min) & (self.df_full['wavedata'] <= self.x_max)]
             
         export_df.to_csv('exported_data.csv', sep = ' ', index=False)
         
