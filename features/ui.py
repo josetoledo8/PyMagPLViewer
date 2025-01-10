@@ -120,6 +120,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
         self.ax_integrated = self.fig.add_subplot(gs[1, :])
 
         # Nome dos eixos
+        
         self.ax_line.set_xlabel('Wavedata (arb. u.)')
         self.ax_line.set_ylabel('CCD Counts (arb. u.)')
 
@@ -147,6 +148,7 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
             border_width=2  # Define a largura da borda
         )
         crop_container.grid(row=1, pady=10, padx=10, sticky ='we')  # Define padding para destacar o bisel
+        crop_container.grid_columnconfigure(0, weight=1)
 
         # Cria um mini-frame para agrupar os botões de crop dentro do container
         crop_box = ctk.CTkFrame(crop_container, fg_color="transparent")
@@ -191,32 +193,40 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
 
 
     def FrameTags(self):
+        
         self.tag_frame = ctk.CTkFrame(self.main_frame)
         self.tag_frame.grid(row=4, column=0, columnspan=4, sticky ='NSWE')
 
-        self.tag_frame_label = ctk.CTkLabel(
-            self.tag_frame, text='Custom variable (Field, Angle, Time, etc)', fg_color="transparent")
-        self.tag_frame_label.grid(
-            row=0, pady=5, padx=5, columnspan=3, sticky ='WE')
+        ctk.CTkLabel(
+            self.tag_frame, text='Custom variable (Field, Angle, Time, etc)', 
+            fg_color="transparent"
+        ).grid(
+            row=0, pady=5, padx=5, 
+            columnspan=3, sticky ='WE'
+        )
 
-        self.tag_frame_label1 = ctk.CTkLabel(
-            self.tag_frame, text='Initial value', fg_color="transparent")
-        self.tag_frame_label1.grid(row=1, column=0, pady=5, padx=5)
+        ctk.CTkLabel(
+            self.tag_frame, text='Initial value', fg_color="transparent"
+        ).grid(row=1, column=0, pady=5, padx=5)
 
-        self.tag_frame_label2 = ctk.CTkLabel(
-            self.tag_frame, text='Final value', fg_color="transparent")
-        self.tag_frame_label2.grid(row=1, column=1, pady=5, padx=5)
+        ctk.CTkLabel(
+            self.tag_frame, text='Final value', fg_color="transparent"
+        ).grid(row=1, column=1, pady=5, padx=5)
 
-        self.tag_frame_label3 = ctk.CTkLabel(
-            self.tag_frame, text='Step value', fg_color="transparent")
-        self.tag_frame_label3.grid(row=1, column=2, pady=5, padx=5)
+        ctk.CTkLabel(
+            self.tag_frame, text='Step value', fg_color="transparent"
+        ).grid(row=1, column=2, pady=5, padx=5)
 
         # Place entries using a loop
         self.init_entries = []
         self.final_entries = []
         self.step_entries = []
 
-        for i in range(1, 4):
+        # Garante que self.num_tags seja inicializado            
+        self.num_tags = getattr(self, 'num_tags', 3)
+
+        # Cria entradas dinamicamente
+        for i in range(1, self.num_tags + 1):
             init_entry = ctk.CTkEntry(self.tag_frame)
             init_entry.grid(row=i + 1, column=0, padx=5, pady=5)
             self.init_entries.append(init_entry)
@@ -229,12 +239,36 @@ class App(ctk.CTk, DataImporter, DataVisualizer, DataProcessor):
             step_entry.grid(row=i + 1, column=2, padx=5, pady=5)
             self.step_entries.append(step_entry)
 
-        # Set confirm button
-        tag_btn = ctk.CTkButton(master=self.tag_frame,
-                                text="Apply tags", command=self.ApplyTags)
-        tag_btn.grid(row=i+2, columnspan=3, sticky = 'we',pady = 5)
-        
-        self.next_empty_row = i + 3
+        # ComboBox para selecionar o número de tags
+        num_tags_var = ctk.IntVar(value=self.num_tags)
+
+        def update_num_tags(new_value):
+            self.num_tags = int(new_value)
+            self.FrameTags()  # Atualiza o frame com o novo número de tags
+            self.FrameDataTable()
+
+        ctk.CTkLabel(
+            master=self.tag_frame,
+            text='Custom variable intervals: ', 
+            fg_color="transparent"
+        ).grid(
+            row=self.num_tags + 2, column = 0,  columnspan = 2, sticky = 'we', pady = 5
+        )
+
+        ctk.CTkComboBox(
+            master=self.tag_frame,
+            values=[str(i) for i in range(1, 11)],
+            command=update_num_tags,
+            variable=num_tags_var
+        ).grid(row=self.num_tags + 2, column=2, pady=5)
+
+        # Botão de confirmação
+        tag_btn = ctk.CTkButton(
+            master=self.tag_frame, text="Apply tags", command=self.ApplyTags)
+        tag_btn.grid(row=self.num_tags + 3, columnspan=3, sticky='we', pady=5)
+
+        # Atualiza o próximo índice vazio
+        self.next_empty_row = self.num_tags + 4
 
     def FrameDataTable(self):
         # Criar um frame vazio para renderizar o DataFrame quando os dados forem importados

@@ -1,7 +1,7 @@
 import numpy as np
 
 class DataProcessor:
-    
+       
     def validate_entry(self, inp):
         try:
             return float(inp)
